@@ -9,7 +9,7 @@ require('dotenv').config();
 
 const app = express();
 const PORT = process.env.PORT || 5000;
-const FRONTEND_URL = process.env.FRONTEND_URL || 'http://localhost:3000';
+const FRONTEND_URL = process.env.FRONTEND_URL || 'http://localhost:5173';
 
 app.use(cors({
   origin: ['http://localhost:3000', 'http://localhost:5173', 'http://127.0.0.1:3000', 'http://127.0.0.1:5173'],
@@ -111,28 +111,23 @@ app.use('/uploads', express.static('uploads'));
 
 // IT Authentication routes
 app.post('/api/auth/it-login', (req, res) => {
-  console.log('IT login request received:', req.body);
   const { username, password } = req.body;
 
   if (!username || !password) {
-    console.log('Missing username or password');
     return res.status(400).json({ error: 'Username and password are required' });
   }
 
-  db.get(`SELECT * FROM it_staff WHERE username = ? AND password = ?`,
-    [username, password],
+  db.get(`SELECT * FROM it_staff WHERE username = ? AND password = ?`, 
+    [username, password], 
     (err, staff) => {
       if (err) {
-        console.error('Database error:', err);
         return res.status(500).json({ error: 'Error during authentication' });
       }
       if (!staff) {
-        console.log('Invalid credentials for username:', username);
         return res.status(401).json({ error: 'Invalid username or password' });
       }
-      console.log('Login successful for:', username);
-      res.json({
-        message: 'Login successful',
+      res.json({ 
+        message: 'Login successful', 
         staff: { id: staff.id, username: staff.username, name: staff.name }
       });
     }
